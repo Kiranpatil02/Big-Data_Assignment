@@ -56,4 +56,22 @@ const returnone=async(req,res)=>{
     }
 }
 
-export {addgame,returnall,returnone}
+const highrated=async(req,res)=>{
+    try{
+        const {top}=req.query
+
+        const limit=top?parseInt(top):3;
+
+        const result=await Games.find().sort({rating:-1}).limit(limit)
+        if(result.length>0){
+            return res.status(200).json({ toprated: result });
+        }else{
+            res.status(404).json({error:"No games found"})
+        }
+    }catch(error){
+        console.log("Failed finding top rated games")
+        return res.status(500).json({error:"Internal server error"})
+    }
+}
+
+export {addgame,returnall,returnone,highrated}
