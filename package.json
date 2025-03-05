@@ -8,9 +8,10 @@
   "name": "bigdata",
   "version": "1.0.0",
   "main": "index.js",
+  "type":"module",
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "keywords": [
     "Assignment-2"
