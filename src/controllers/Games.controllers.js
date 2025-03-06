@@ -1,4 +1,4 @@
-import { Games } from "../models/all.models";
+import { Games } from "../models/all.models.js";
 
 const addgame=async (req,res)=>{
     try{
@@ -70,6 +70,44 @@ const highrated=async(req,res)=>{
         }
     }catch(error){
         console.log("Failed finding top rated games")
+        return res.status(500).json({error:"Internal server error"})
+    }
+}
+
+const updateGameAchievements=async(gameNames)=>{
+    try{
+        const {gameName}=req.body
+        if(!Array.isArray(gameName) || gameName.length!==2){
+            return res.json(400).json({error:"Please provide exactly 2 game names"})
+        }
+
+        const achievements={
+            "Game Master": "Achieved mastery of the game",
+            "Speed Demon": "Completed game at record speed"
+        }
+
+        const result=await Games.updateMany(
+            {
+                name:{$in:gameName}
+            },
+            {
+                $set:{
+                    achievements:achievements
+                }
+            }
+        )
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ error: "No games found to update" });
+        }
+
+        return res.status(200).json({
+            message: "Achievements updated successfully",
+            updatedCount: result.modifiedCount
+        })
+
+
+    }catch(error){
+        console.log("Failed updating achievements!",error)
         return res.status(500).json({error:"Internal server error"})
     }
 }
