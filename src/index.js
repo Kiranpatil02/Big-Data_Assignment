@@ -1,7 +1,6 @@
 import connectDB from "./db/index.js";
-import express from "express"
+import { app } from "./app.js";
 
-const app=express()
 
 const PORT=process.env.PORT
 

@@ -15,10 +15,11 @@ const GamesSchema=new Schema({
         required:true,
         max:100,
         min:1
-    }
+    },
+    achievements: { type: [String], default: [] } 
     
 
 },{timestamps:true})
 
-export const Games=mongoose.models("Games",GamesSchema)
+export const Games=mongoose.model("Games",GamesSchema)
 

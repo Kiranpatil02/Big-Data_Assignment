@@ -4,7 +4,7 @@ const addgame=async (req,res)=>{
     try{
 
         const {name,genre,rating}=req.body
-        console.log(`req.body:${req.body}`)
+        console.log(`name:${name}`)
         
         if(
             [name,genre,rating].some((field)=>field?.trim()==="")
@@ -17,7 +17,7 @@ const addgame=async (req,res)=>{
             return res.status(400).json({ error: "Game already exists!" })
         }
         
-        await Games.create({name,genre,rating})
+        const newGame=await Games.create({name,genre,rating})
 
         return res.status(201).json({ message: "Game added successfully", game: newGame });
         
@@ -40,9 +40,9 @@ const returnall=async(req,res)=>{
     }
 }
 
-const returnone=async(req,res)=>{
+const returnGameByName=async(req,res)=>{
     try{
-        const {name}=req.body
+        const {name}=req.query
         const onegame=await Games.findOne({name})
         if(onegame){
             return res.status(200).json({game:onegame})
@@ -51,7 +51,7 @@ const returnone=async(req,res)=>{
         }
     }
     catch(error){
-        console.log("Failed finding the game")
+        console.log("Failed finding the game",error)
         return res.status(500).json({error:"Internal server error"})
     }
 }
@@ -63,10 +63,10 @@ const highrated=async(req,res)=>{
         const limit=top?parseInt(top):3;
 
         const result=await Games.find().sort({rating:-1}).limit(limit)
-        if(result.length>0){
-            return res.status(200).json({ toprated: result });
-        }else{
+        if(result.length===0){
             res.status(404).json({error:"No games found"})
+        }else{
+            return res.status(200).json({ toprated: result });
         }
     }catch(error){
         console.log("Failed finding top rated games")
@@ -74,17 +74,18 @@ const highrated=async(req,res)=>{
     }
 }
 
-const updateGameAchievements=async(gameNames)=>{
+const updateGameAchievements=async(req,res)=>{
     try{
         const {gameName}=req.body
+        console.log("Names of game:",gameName)
         if(!Array.isArray(gameName) || gameName.length!==2){
-            return res.json(400).json({error:"Please provide exactly 2 game names"})
+            return res.status(400).json({error:"Please provide exactly 2 game names"})
         }
 
-        const achievements={
-            "Game Master": "Achieved mastery of the game",
-            "Speed Demon": "Completed game at record speed"
-        }
+        const achievements=[
+            "Game Master" ,
+            "Speed Demon"
+        ]
 
         const result=await Games.updateMany(
             {
@@ -92,10 +93,11 @@ const updateGameAchievements=async(gameNames)=>{
             },
             {
                 $set:{
-                    achievements:achievements
+                    achievements
                 }
             }
         )
+        console.log("Reuslts:",result)
         if (result.modifiedCount === 0) {
             return res.status(404).json({ error: "No games found to update" });
         }
@@ -112,4 +114,39 @@ const updateGameAchievements=async(gameNames)=>{
     }
 }
 
-export {addgame,returnall,returnone,highrated}
+const acheivementgames=async(req,res)=>{
+    try{
+        const games=await Games.find({achievements:{
+            $all:["Game Master","Speed Demon"]
+        }})
+
+        if(games.length===0){
+            return res.status(404).json({error:"No games found with these achievements"})
+        }
+        return res.status(200).json({games})
+
+    }catch(error){
+        console.log("Failed fetching acheivement games",error)
+        return res.status(500).json({error:"Internal server error"})
+    }
+}
+
+const gamesWithAchievements=async(req,res)=>{
+    try{
+        const results=await Games.find({achievements:{$exists:true,$ne:[]}})
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: "No games with achievements found" });
+        }
+        return res.status(200).json({results})
+    }catch(error){
+        console.log("Failed fetching games with achievements",error)
+        return res.status(500).json({error:"Internal server error"})
+    }
+}
+
+
+
+
+
+export {addgame,returnall,returnGameByName,highrated,acheivementgames,updateGameAchievements,gamesWithAchievements}
