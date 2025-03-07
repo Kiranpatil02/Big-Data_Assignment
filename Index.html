@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big_data</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        padding: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid black;
+        padding: 10px;
+        text-align: left;
+    }
+    th {
+        background-color: #f4f4f4;
+    }
+</style>
+<body>
+    <h1>BIG-DATA</h1>
+    <h4>Assignment-2</h4>
+    <h2>Game Scores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>Publisher</th>
+                <th>Release Date</th>
+                <th>Rating</th>
+                <th>Average Score</th>
+            </tr>
+        </thead>
+        <tbody id="game-table-body">
+            <!-- Data will be inserted here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchGamedetails(){
+            try{
+                const response=await fetch("http://localhost:8000/api/q2/alldetails");
+                const data=await response.json()
+                const games=data.alldetails
+                console.log("Response:",games)
+                const tableBody = document.getElementById("game-table-body");
+                tableBody.innerHTML = ""; // Clear previous data
+
+                games.forEach(game => {
+                    console.log("GAme:",game)
+                    const averageScore = game.scores.length > 0 
+                        ? (game.scores.reduce((sum, s) => sum + s.score, 0) / game.scores.length).toFixed(2) 
+                        : "N/A";
+
+                    const row = `<tr>
+                        <td>${game.name}</td>
+                        <td>${game.publisher}</td>
+                        <td>${new Date(game.released).toLocaleDateString()}</td>
+                        <td>${game.rating}</td>
+                        <td>${averageScore}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                })
+
+                
+            }
+            catch(error){
+                console.log("error fetching data",error)
+            }
+
+        }
+        fetchGamedetails()
+    </script>
+</html>
