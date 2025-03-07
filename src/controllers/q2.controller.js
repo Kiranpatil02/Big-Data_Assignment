@@ -19,7 +19,7 @@ const q2addgame=async(req,res)=>{
         return res.status(200).json({message:"Games added success",newgame})
     }catch(error){
         console.log("Failed to add game",error);
-        res.status(500).json({error:"Internal server error"})
+       return res.status(500).json({error:"Internal server error"})
     }
 }
 
@@ -47,8 +47,19 @@ const getTotalScoresofplayers=async(req,res)=>{
 
     }catch(error){
         console.log("Failed Calculating total scores",error)
-        res.status(500).json({error:"Internal server error"})
+       return res.status(500).json({error:"Internal server error"})
     }
 }
 
-export {getTotalScoresofplayers,q2addgame}
+const getallgames=async(req,res)=>{
+    try{
+        const alldetails=await question2.find({})
+        return res.status(200).json({alldetails})
+
+    }catch(error){
+        console.log("Failed fetching details",error)
+       return res.status(500).json({error:"Internal server error"})
+    }
+}
+
+export {getTotalScoresofplayers,q2addgame,getallgames}
